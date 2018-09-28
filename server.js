@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const cheerio = require('cheerio')
 const axios = require('axios')
 //require database models
-const db =require("./models")
+const db = require("./models")
 const PORT = 3300
 
 //initialize express
@@ -15,7 +15,7 @@ app.engine('handlebars', exphbs({defaultLayout:'main'}))
 app.set('view-engine','handlebars')
 
 //connect to MongoDB
-mongoose.connect('mongodb://localhost',{useNewUrlParser: true});
+mongoose.connect("mongodb://localhost/arbysScraper",{useNewUrlParser: true});
 
 
 //routes
@@ -30,7 +30,7 @@ app.get('/scrape', function(req, ers){
 
 		$("li").each(function(i, element){
 			//empty result object to be populated by headlines
-			let result = {}
+			const result = {}
 			
 			//add text and href of every link, save as properties of result object
 
@@ -41,7 +41,7 @@ app.get('/scrape', function(req, ers){
 			.children('a')
 			.attr("href")
 
-			db.Article.create(result)
+			db.article.create(result)
 			.then(function(dbArticle){
 				console.log(dbArticle)
 			}).catch(function(err){
@@ -49,5 +49,17 @@ app.get('/scrape', function(req, ers){
 			})
 		})
 		res.send("Scrape Complete")
+		console.log(`result: ${result}`)
+	})
+})
+
+//route articles from the db to front-end
+
+app.get("/articles", function(req, res){
+	db.article.find({})
+	.then(function(dbArticle){
+		res.json(dbArticle)
+	}).catch(function(err){
+		res.json(err)
 	})
 })
