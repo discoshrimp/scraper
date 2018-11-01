@@ -1,65 +1,91 @@
-const express = require('express')
-var expbhs = require('handlebars')
-const bodyParser = require('body-parser')
-const mongoose = require('mongoose')
-const cheerio = require('cheerio')
-const axios = require('axios')
+var express = require('express')
+var bodyParser = require('body-parser')
+var mongoose = require('mongoose')
+//scraping tools
+var cheerio = require('cheerio')
+var axios = require('axios')
 //require database models
-const db = require("./models")
-const PORT = 3300
+var db = require('./models')
+
+var PORT = 3000
 
 //initialize express
-const app = express()
+var app = express()
 
-app.engine('handlebars', exphbs({defaultLayout:'main'}))
-app.set('view-engine','handlebars')
+
+app.use(bodyParser.urlencoded({extended: true}))
+//serves public server as a static directory
+app.use(express.static('public'))
 
 //connect to MongoDB
-mongoose.connect("mongodb://localhost/arbysScraper",{useNewUrlParser: true});
+mongoose.connect("mongodb://localhost/scrape", { useNewUrlParser: true });
 
 
 //routes
 
 //a get route for scraping the website
 
-app.get('/scrape', function(req, ers){
+app.get('/scrape', function (req, res) {
 
 	//use axios to grab body of html with request
-	axios.get('https://arbys.com/press-center/news').then(function(response){
-		const $ = cheerio.load(response.data)
+	axios.get('https://coolmaterial.com').then(function (response) {
 
-		$("li").each(function(i, element){
+		//load response data into cheerio and save as $ for shorthand
+		var $ = cheerio.load(response.data)
+
+		$("article").each(function (i, element) {
 			//empty result object to be populated by headlines
-			const result = {}
-			
+			var result = {}
+			var currentArticle= $(this)
 			//add text and href of every link, save as properties of result object
 
 			result.title = $(this)
-			.children('a')
-			.text()
+				.find('header')
+				.text()
 			result.link = $(this)
-			.children('a')
-			.attr("href")
+				.find('a.thumb-link')
+				.attr("href")
+			result.summary = $(this)
+				.find('.post-content p')
+				.text()
 
-			db.article.create(result)
-			.then(function(dbArticle){
-				console.log(dbArticle)
-			}).catch(function(err){
-				return res.json(err)
-			})
+				console.log(result)
+				//send data to the database
+			db.Article.create(result)
+				.then(function (dbArticle) {
+					console.log(dbArticle)
+				}).catch(function (err) {
+					console.log(`ERROR: ${err}`)
+					// return res.json(err)
+				})
 		})
-		res.send("Scrape Complete")
-		console.log(`result: ${result}`)
+		res.send(result)
+		console.log(`scrape complete: ${result}`)
 	})
 })
 
 //route articles from the db to front-end
 
-app.get("/articles", function(req, res){
-	db.article.find({})
-	.then(function(dbArticle){
-		res.json(dbArticle)
-	}).catch(function(err){
-		res.json(err)
+app.get("/articles", function (req, res) {
+	db.Article.find({})
+		.then(function (dbArticle) {
+			// console.log(`server /articles: ${dbArticle}`)
+			res.send(dbArticle)
+		}).catch(function (err) {
+			res.send(err)
+		})
+})
+app.post('/save', (req,res)=>{
+	db.Article.findOneAndUpdate({title: req.body.title},{saved: true})
+	.then( response=>{
+		console.log(`article saved: ${response}`)
+	}).catch(err=>{
+		console.log(`server 81: ${err}`)
 	})
 })
+
+
+app.listen(PORT, function() {
+	console.log("App running on port " + PORT + "!");
+  });
+  

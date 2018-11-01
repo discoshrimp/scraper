@@ -1,5 +1,3 @@
-const mongoose = require('mongoose')
-
 //requires mongoose
 const mongoose = require('mongoose')
 
@@ -8,23 +6,29 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 //constructs a new schema for articles pulled from website
 
-const articleSchema = new Schema({
-	title:{
+const ArticleSchema = new Schema({
+	title: {
 		type: String,
 		required: true
 	},
-	link:{
+
+	link: {
 		type: String,
 		requred: true
 	},
-	summary:{
+
+	summary: {
 		type: String,
 		required: true
+	},
+	saved: {
+		type: Boolean,
+		default: false
 	}
 })
 
 //create a model from the schema
-var Article = mongoose.model('Article', articleSchema)
+var Article = mongoose.model('Article', ArticleSchema)
 
 //export Article model
 

@@ -1,17 +1,34 @@
-$(document).ready(function(){
-	$("#articleBtn").on("click", function(){
+$(document).ready(function () {
+	$("scrapeBtn").on("click", function (event) {
+		event.preventDefault()
 		$.ajax({
-			url:'/scrape',
-			type:"POST"
+			url: '/scrape',
+			method: 'GET'
+		}).then(function (data) {
+			console.log(`app 40: ${data}`)
 		})
 	})
-})
-$.getJSON("/articles", function(data){
-	const articleList = $("<ul>")
-	for(let i =0; i<data.length; i++){
-		articleList.append(`<div class='row' id=${data[i]._id}><li>${data[i].title}</li>
-		<li>${data[i].link}</li>
-		<li>${data[i].summary}</li></div>`)
-	}
-	$('articleList').append(articleList)
+	$("#articlesBtn").on('click', function (event) {
+		event.preventDefault()
+		console.log('button clicked')
+		$.ajax({
+			url: "/articles",
+			method: "GET"
+		}).then(function (data) {
+			data.slice(',')
+			console.log(data)
+			for (i = 0; i < data.length; i++) {
+				const link = data[i].link
+				const summary = data[i].summary
+				const id = data[i]._id
+				const title = data[i].title
+				$("#articleList").append(
+					`<li id='${title}'>
+				<a href='${link}'>${link}</a>
+				<p>${title}</p>
+				<p>${summary}</p>
+			</li>`)
+			}
+		})
+	})
 })
