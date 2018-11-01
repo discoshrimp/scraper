@@ -1,11 +1,12 @@
 $(document).ready(function () {
-	$("scrapeBtn").on("click", function (event) {
+	$("#scrapeBtn").on("click", function (event) {
 		event.preventDefault()
+		console.log(`scrape clicked`)
 		$.ajax({
 			url: '/scrape',
 			method: 'GET'
 		}).then(function (data) {
-			console.log(`app 40: ${data}`)
+			console.log(`app 40: ${JSON.stringify(data)}`)
 		})
 	})
 	$("#articlesBtn").on('click', function (event) {
