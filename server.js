@@ -19,7 +19,7 @@ app.use(express.static('public'))
 
 //connect to MongoDB
 mongoose.Promise = Promise;
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/scrape")
+mongoose.connect(process.env.MONGODB_URI)
 
 
 //routes
