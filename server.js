@@ -7,7 +7,7 @@ var axios = require('axios')
 //require database models
 var db = require('./models')
 
-var PORT = 3000
+const PORT = process.env.PORT || 3000;
 
 //initialize express
 var app = express()
